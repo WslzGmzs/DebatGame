@@ -55,7 +55,19 @@ async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   let pathname = url.pathname;
 
-  console.log(`请求路径: ${pathname}`);
+  console.log(`📥 请求: ${req.method} ${pathname}`);
+
+  // 处理 OPTIONS 请求（CORS 预检）
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    });
+  }
 
   // 处理根路径
   if (pathname === "/") {
@@ -69,11 +81,25 @@ async function handler(req: Request): Promise<Response> {
   try {
     const stat = await Deno.stat(filePath);
     if (stat.isFile) {
+      console.log(`✅ 找到文件: ${filePath}`);
       return await serveStaticFile(filePath);
     }
-  } catch {
-    // 文件不存在，对于 SPA 应用返回 index.html
-    console.log(`文件不存在: ${filePath}, 返回 index.html`);
+  } catch (error) {
+    console.log(`❌ 文件不存在: ${filePath}, 错误: ${error.message}`);
+
+    // 对于 API 请求，返回 JSON 错误
+    if (pathname.startsWith("/api/")) {
+      return new Response(JSON.stringify({ error: "API endpoint not found" }), {
+        status: 404,
+        headers: {
+          "content-type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    // 对于其他请求，返回 index.html（SPA 路由处理）
+    console.log(`🔄 返回 index.html 用于 SPA 路由`);
     return await serveStaticFile("./dist/index.html");
   }
 

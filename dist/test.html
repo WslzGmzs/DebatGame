@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面 - AI辩论游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🧪 AI辩论游戏 - 测试页面</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">📁 文件测试</h2>
+                <div id="file-tests" class="space-y-2">
+                    <div class="text-gray-400">正在测试文件访问...</div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">🔧 配置测试</h2>
+                <div id="config-tests" class="space-y-2">
+                    <div class="text-gray-400">正在测试配置加载...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-slate-800 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">🚀 快速访问</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors">
+                    返回主应用
+                </a>
+                <a href="/config/cloud-config.json" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded transition-colors">
+                    查看配置文件
+                </a>
+                <a href="/assets/index-B5fcyAUy.js" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition-colors">
+                    查看JS文件
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 测试文件访问
+        async function testFiles() {
+            const fileTests = document.getElementById('file-tests');
+            const files = [
+                '/config/cloud-config.json',
+                '/assets/index-B5fcyAUy.js',
+                '/index.html'
+            ];
+            
+            fileTests.innerHTML = '';
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file);
+                    const status = response.ok ? '✅' : '❌';
+                    const statusText = response.ok ? 'OK' : `Error ${response.status}`;
+                    fileTests.innerHTML += `<div>${status} ${file} - ${statusText}</div>`;
+                } catch (error) {
+                    fileTests.innerHTML += `<div>❌ ${file} - ${error.message}</div>`;
+                }
+            }
+        }
+        
+        // 测试配置加载
+        async function testConfig() {
+            const configTests = document.getElementById('config-tests');
+            
+            try {
+                const response = await fetch('/config/cloud-config.json');
+                if (response.ok) {
+                    const config = await response.json();
+                    configTests.innerHTML = `
+                        <div>✅ 配置文件加载成功</div>
+                        <div>📋 默认模型: ${config.defaultModels?.defaultModel || '未设置'}</div>
+                        <div>🔗 API地址: ${config.apiBaseUrl || '未设置'}</div>
+                        <div>📊 可用模型数量: ${config.availableModels?.length || 0}</div>
+                    `;
+                } else {
+                    configTests.innerHTML = `<div>❌ 配置文件加载失败: ${response.status}</div>`;
+                }
+            } catch (error) {
+                configTests.innerHTML = `<div>❌ 配置文件加载错误: ${error.message}</div>`;
+            }
+        }
+        
+        // 页面加载时运行测试
+        window.addEventListener('load', () => {
+            testFiles();
+            testConfig();
+        });
+    </script>
+</body>
+</html>
