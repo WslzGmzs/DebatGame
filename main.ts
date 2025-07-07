@@ -1,57 +1,85 @@
-// Deno Deploy静态文件服务器
-// 用于部署React构建后的静态文件
-
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
-import { serveDir } from "https://deno.land/std@0.208.0/http/file_server.ts";
+// Deno Deploy 静态文件服务器
+// 用于部署 React 构建后的静态文件
 
 const PORT = parseInt(Deno.env.get("PORT") || "8000");
 
-console.log(`🚀 辩论游戏静态服务器启动在端口 ${PORT}`);
+console.log(`🚀 AI辩论游戏服务器启动在端口 ${PORT}`);
 
-serve(async (req: Request) => {
-  const url = new URL(req.url);
-  const pathname = url.pathname;
-
-  // 处理根路径
-  if (pathname === "/") {
-    return serveDir(req, {
-      fsRoot: "./dist",
-      urlRoot: "",
-      showDirListing: false,
-      enableCors: true,
-    });
-  }
-
-  // 处理静态文件
-  if (pathname.startsWith("/assets/") || 
-      pathname.startsWith("/config/") ||
-      pathname.endsWith(".js") ||
-      pathname.endsWith(".css") ||
-      pathname.endsWith(".json") ||
-      pathname.endsWith(".ico") ||
-      pathname.endsWith(".png") ||
-      pathname.endsWith(".svg")) {
-    return serveDir(req, {
-      fsRoot: "./dist",
-      urlRoot: "",
-      showDirListing: false,
-      enableCors: true,
-    });
-  }
-
-  // SPA路由处理 - 所有其他路径都返回index.html
+// 简化的文件服务函数
+async function serveStaticFile(filePath: string): Promise<Response> {
   try {
-    const indexFile = await Deno.readFile("./dist/index.html");
-    return new Response(indexFile, {
+    const file = await Deno.readFile(filePath);
+    const ext = filePath.split('.').pop()?.toLowerCase();
+
+    let contentType = "text/plain";
+    switch (ext) {
+      case "html":
+        contentType = "text/html; charset=utf-8";
+        break;
+      case "js":
+        contentType = "application/javascript";
+        break;
+      case "css":
+        contentType = "text/css";
+        break;
+      case "json":
+        contentType = "application/json";
+        break;
+      case "png":
+        contentType = "image/png";
+        break;
+      case "svg":
+        contentType = "image/svg+xml";
+        break;
+      case "ico":
+        contentType = "image/x-icon";
+        break;
+    }
+
+    return new Response(file, {
       headers: {
-        "content-type": "text/html; charset=utf-8",
+        "content-type": contentType,
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   } catch (error) {
-    console.error("Error serving index.html:", error);
+    console.error(`Error serving file ${filePath}:`, error);
     return new Response("File not found", { status: 404 });
   }
-}, { port: PORT });
+}
+
+// 主服务器处理函数
+async function handler(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  let pathname = url.pathname;
+
+  console.log(`请求路径: ${pathname}`);
+
+  // 处理根路径
+  if (pathname === "/") {
+    pathname = "/index.html";
+  }
+
+  // 构建文件路径
+  let filePath = `./dist${pathname}`;
+
+  // 检查文件是否存在
+  try {
+    const stat = await Deno.stat(filePath);
+    if (stat.isFile) {
+      return await serveStaticFile(filePath);
+    }
+  } catch {
+    // 文件不存在，对于 SPA 应用返回 index.html
+    console.log(`文件不存在: ${filePath}, 返回 index.html`);
+    return await serveStaticFile("./dist/index.html");
+  }
+
+  // 默认返回 index.html（SPA 路由处理）
+  return await serveStaticFile("./dist/index.html");
+}
+
+// 启动服务器
+Deno.serve({ port: PORT }, handler);
