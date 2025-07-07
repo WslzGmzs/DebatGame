@@ -1,0 +1,34 @@
+{
+  "systemApiKey": "",
+  "apiBaseUrl": "https://generativelanguage.googleapis.com",
+  "defaultModels": {
+    "defaultModel": "gemini-2.5-flash-preview-04-17",
+    "proModel": "gemini-2.5-flash-preview-04-17",
+    "conModel": "gemini-2.5-flash-preview-04-17",
+    "judgeModel": "gemini-2.5-flash-preview-04-17"
+  },
+  "availableModels": [
+    {
+      "id": "gemini-2.5-flash-preview-04-17",
+      "name": "gemini-2.5-flash-preview-04-17",
+      "displayName": "Gemini 2.5 Flash Preview",
+      "description": "Google最新的Gemini 2.5 Flash预览版模型，速度快，性能优秀"
+    },
+    {
+      "id": "gemini-1.5-pro",
+      "name": "gemini-1.5-pro",
+      "displayName": "Gemini 1.5 Pro",
+      "description": "Google Gemini 1.5 Pro模型，适合复杂推理任务"
+    },
+    {
+      "id": "gemini-1.5-flash",
+      "name": "gemini-1.5-flash",
+      "displayName": "Gemini 1.5 Flash",
+      "description": "Google Gemini 1.5 Flash模型，快速响应"
+    }
+  ],
+  "enableSeparateModels": false,
+  "enableStreamResponse": true,
+  "adminPassword": "DebatGame-Admin-WslzGmzs",
+  "version": "1.0.0"
+}

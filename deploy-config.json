@@ -1,0 +1,8 @@
+{
+  "name": "gemini-debate-game",
+  "description": "AI辩论游戏 - 支持多AI提供商的智能辩论平台",
+  "entrypoint": "main.ts",
+  "env": {
+    "PORT": "8000"
+  }
+}
