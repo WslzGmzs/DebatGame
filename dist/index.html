@@ -45,22 +45,70 @@
     </style>
 
 
-<script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://esm.sh/@google/genai",
-    "react/": "https://esm.sh/react@^19.1.0/",
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react-markdown": "https://esm.sh/react-markdown@^9.0.1",
-    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0",
-    "jspdf": "https://esm.sh/jspdf@^3.0.1"
-  }
-}
-</script>
+
   <script type="module" crossorigin src="/assets/index-B5fcyAUy.js"></script>
 </head>
 <body class="bg-slate-900 text-neutral-light">
-    <div id="root"></div>
+    <div id="root">
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-4">🔄 正在加载 AI 辩论游戏...</div>
+                <div class="text-gray-400">如果长时间未加载，请检查浏览器控制台</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 错误捕获和调试
+        window.addEventListener('error', function(e) {
+            console.error('全局错误:', e.error);
+            document.getElementById('root').innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+                    <div class="text-center max-w-2xl mx-auto p-8">
+                        <div class="text-3xl font-bold mb-4 text-red-500">❌ 应用加载失败</div>
+                        <div class="text-lg mb-4">错误信息：</div>
+                        <div class="bg-slate-800 p-4 rounded text-left text-sm font-mono mb-4">
+                            ${e.error ? e.error.message : '未知错误'}
+                        </div>
+                        <div class="text-gray-400 mb-4">
+                            请尝试刷新页面，或检查网络连接
+                        </div>
+                        <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded transition-colors">
+                            刷新页面
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 检查关键资源是否加载成功
+        setTimeout(function() {
+            const root = document.getElementById('root');
+            if (root && root.innerHTML.includes('正在加载')) {
+                console.warn('应用可能未正确初始化');
+                root.innerHTML = `
+                    <div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+                        <div class="text-center max-w-2xl mx-auto p-8">
+                            <div class="text-3xl font-bold mb-4 text-yellow-500">⚠️ 应用初始化超时</div>
+                            <div class="text-lg mb-4">可能的原因：</div>
+                            <ul class="text-left text-gray-300 mb-6 space-y-2">
+                                <li>• JavaScript 文件加载失败</li>
+                                <li>• 网络连接问题</li>
+                                <li>• 浏览器兼容性问题</li>
+                            </ul>
+                            <div class="space-x-4">
+                                <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded transition-colors">
+                                    刷新页面
+                                </button>
+                                <a href="/test.html" class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded transition-colors inline-block">
+                                    诊断页面
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
